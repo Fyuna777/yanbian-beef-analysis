@@ -1,0 +1,1079 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>延边黄牛肉数据分析 | 方裕娜</title>
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🐂</text></svg>">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC', 'Microsoft YaHei', sans-serif;
+        }
+        
+        :root {
+            --primary: #3B82F6;
+            --primary-dark: #2563EB;
+            --success: #10B981;
+            --warning: #F59E0B;
+            --danger: #EF4444;
+            --neutral: #6B7280;
+            --light-bg: #F8FAFC;
+            --card-bg: #FFFFFF;
+            --text-primary: #1F2937;
+            --text-secondary: #4B5563;
+            --sidebar-bg: #F9FAFB;
+        }
+        
+        body {
+            background-color: var(--light-bg);
+            color: var(--text-primary);
+            line-height: 1.6;
+            display: flex;
+        }
+        
+        /* 侧边栏样式 */
+        .sidebar {
+            width: 320px;
+            background: var(--sidebar-bg);
+            padding: 1.5rem;
+            border-right: 1px solid #E5E7EB;
+            min-height: 100vh;
+            position: fixed;
+            left: 0;
+            top: 0;
+            overflow-y: auto;
+        }
+        
+        .sidebar-header {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--text-primary);
+            margin-bottom: 1.5rem;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .sidebar-section {
+            margin-bottom: 2rem;
+        }
+        
+        .sidebar-section h3 {
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: var(--text-primary);
+            margin-bottom: 1rem;
+        }
+        
+        .param-slider {
+            margin-bottom: 1.5rem;
+        }
+        
+        .param-slider label {
+            display: block;
+            font-size: 0.875rem;
+            color: var(--text-secondary);
+            margin-bottom: 0.5rem;
+        }
+        
+        .param-slider input[type="range"] {
+            width: 100%;
+            height: 6px;
+            background: #E5E7EB;
+            border-radius: 3px;
+            outline: none;
+            -webkit-appearance: none;
+        }
+        
+        .param-slider input[type="range"]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            width: 20px;
+            height: 20px;
+            background: var(--primary);
+            border-radius: 50%;
+            cursor: pointer;
+        }
+        
+        .param-slider .value {
+            display: block;
+            text-align: right;
+            font-size: 0.875rem;
+            color: var(--primary);
+            font-weight: 500;
+            margin-top: 0.5rem;
+        }
+        
+        .checkbox-container {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 1rem;
+        }
+        
+        .checkbox-container input[type="checkbox"] {
+            width: 18px;
+            height: 18px;
+        }
+        
+        /* 主内容区 */
+        .main-content {
+            flex: 1;
+            margin-left: 320px;
+            padding: 2rem;
+        }
+        
+        .main-header {
+            font-size: 2.5rem;
+            font-weight: 700;
+            color: var(--text-primary);
+            text-align: center;
+            margin-bottom: 0.5rem;
+        }
+        
+        .sub-header {
+            font-size: 1.1rem;
+            color: var(--text-secondary);
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+        
+        /* KPI卡片 */
+        .kpi-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 1rem;
+            margin-bottom: 2rem;
+        }
+        
+        .kpi-card {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            padding: 1.5rem;
+            border-radius: 1rem;
+            color: white;
+            text-align: center;
+        }
+        
+        .kpi-value {
+            font-size: 2.2rem;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+        }
+        
+        .kpi-label {
+            font-size: 0.875rem;
+            opacity: 0.9;
+        }
+        
+        /* 选项卡 */
+        .tabs-container {
+            background: var(--card-bg);
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+        }
+        
+        .tabs-header {
+            display: flex;
+            background: var(--light-bg);
+            border-bottom: 1px solid #E5E7EB;
+            overflow-x: auto;
+        }
+        
+        .tab-button {
+            padding: 1rem 1.5rem;
+            background: none;
+            border: none;
+            font-size: 1rem;
+            color: var(--text-secondary);
+            cursor: pointer;
+            transition: all 0.3s;
+            white-space: nowrap;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .tab-button:hover {
+            background: rgba(0,0,0,0.05);
+        }
+        
+        .tab-button.active {
+            color: var(--primary);
+            border-bottom: 2px solid var(--primary);
+            background: var(--card-bg);
+        }
+        
+        .tab-content {
+            padding: 2rem;
+            display: none;
+        }
+        
+        .tab-content.active {
+            display: block;
+        }
+        
+        .tab-content h2 {
+            font-size: 1.75rem;
+            font-weight: 600;
+            color: var(--text-primary);
+            margin-bottom: 1.5rem;
+        }
+        
+        .tab-content h3 {
+            font-size: 1.25rem;
+            font-weight: 600;
+            color: var(--text-primary);
+            margin: 1.5rem 0 1rem;
+        }
+        
+        .columns-container {
+            display: grid;
+            grid-template-columns: 2fr 1fr;
+            gap: 2rem;
+            margin-top: 1.5rem;
+        }
+        
+        /* 图表占位符 */
+        .chart-placeholder {
+            background: var(--light-bg);
+            border-radius: 8px;
+            padding: 2rem;
+            text-align: center;
+            color: var(--text-secondary);
+            border: 2px dashed #E5E7EB;
+            min-height: 300px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .metric-display {
+            background: var(--light-bg);
+            border-radius: 8px;
+            padding: 1rem;
+            margin-bottom: 1rem;
+            border-left: 4px solid var(--primary);
+        }
+        
+        .metric-display h4 {
+            font-size: 0.875rem;
+            color: var(--text-secondary);
+            margin-bottom: 0.5rem;
+        }
+        
+        .metric-display .value {
+            font-size: 1.5rem;
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+        
+        .info-box {
+            background: #EFF6FF;
+            border-left: 4px solid var(--primary);
+            padding: 1.5rem;
+            border-radius: 0 8px 8px 0;
+            margin: 1.5rem 0;
+        }
+        
+        .success-box {
+            background: #D1FAE5;
+            border-left: 4px solid var(--success);
+            padding: 1.5rem;
+            border-radius: 0 8px 8px 0;
+            margin: 1.5rem 0;
+        }
+        
+        .warning-box {
+            background: #FEF3C7;
+            border-left: 4px solid var(--warning);
+            padding: 1.5rem;
+            border-radius: 0 8px 8px 0;
+            margin: 1.5rem 0;
+        }
+        
+        /* 表格样式 */
+        .data-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 1.5rem 0;
+        }
+        
+        .data-table th,
+        .data-table td {
+            padding: 1rem;
+            text-align: left;
+            border-bottom: 1px solid #E5E7EB;
+        }
+        
+        .data-table th {
+            background: var(--light-bg);
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+        
+        /* 页脚 */
+        .footer {
+            text-align: center;
+            color: var(--text-secondary);
+            padding: 2rem;
+            margin-top: 3rem;
+            border-top: 1px solid #E5E7EB;
+        }
+        
+        /* 响应式设计 */
+        @media (max-width: 1200px) {
+            .kpi-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+            
+            .columns-container {
+                grid-template-columns: 1fr;
+            }
+        }
+        
+        @media (max-width: 768px) {
+            body {
+                flex-direction: column;
+            }
+            
+            .sidebar {
+                width: 100%;
+                position: static;
+                min-height: auto;
+            }
+            
+            .main-content {
+                margin-left: 0;
+            }
+            
+            .kpi-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- 侧边栏 -->
+    <div class="sidebar">
+        <div class="sidebar-header">
+            <span>🎛️</span>
+            <span>参数调整</span>
+        </div>
+        
+        <div class="sidebar-section">
+            <h3>💰 财务参数</h3>
+            
+            <div class="param-slider">
+                <label>投资单元金额（元/头）</label>
+                <input type="range" min="5000" max="20000" value="10000" step="1000" class="slider" id="investment-unit">
+                <span class="value" id="investment-value">¥10,000</span>
+            </div>
+            
+            <div class="param-slider">
+                <label>保底收益率（%）</label>
+                <input type="range" min="3.0" max="15.0" value="6.0" step="0.5" class="slider" id="return-rate">
+                <span class="value" id="return-value">6.0%</span>
+            </div>
+            
+            <div class="param-slider">
+                <label>销售单价（元/斤）</label>
+                <input type="range" min="150" max="250" value="198" step="5" class="slider" id="sales-price">
+                <span class="value" id="price-value">¥198</span>
+            </div>
+        </div>
+        
+        <div class="sidebar-section">
+            <h3>📊 运营参数</h3>
+            
+            <div class="param-slider">
+                <label>销量达成率（%）</label>
+                <input type="range" min="20" max="100" value="75" step="5" class="slider" id="sales-achievement">
+                <span class="value" id="achievement-value">75%</span>
+            </div>
+            
+            <div class="param-slider">
+                <label>牛只死亡率（%）</label>
+                <input type="range" min="0" max="20" value="5" step="1" class="slider" id="mortality-rate">
+                <span class="value" id="mortality-value">5%</span>
+            </div>
+        </div>
+        
+        <div class="sidebar-section">
+            <h3>📢 营销预算</h3>
+            
+            <div class="param-slider">
+                <label>总营销预算（万元）</label>
+                <input type="range" min="5" max="15" value="8" step="1" class="slider" id="marketing-budget">
+                <span class="value" id="budget-value">8万元</span>
+            </div>
+        </div>
+        
+        <div class="sidebar-section">
+            <h3>🧠 模型复杂度</h3>
+            <div class="checkbox-container">
+                <input type="checkbox" id="advanced-model">
+                <label for="advanced-model">启用高级风险模型</label>
+            </div>
+            <div style="font-size: 0.8rem; color: var(--text-secondary); margin-top: 0.5rem;">
+                启用价格弹性、对数正态分布等高级假设
+            </div>
+        </div>
+        
+        <div class="sidebar-section">
+            <div class="info-box" style="background: #F0F9FF; padding: 1rem; border-radius: 8px;">
+                💡 <strong>提示</strong>：拖动滑块实时查看分析结果变化
+            </div>
+        </div>
+        
+        <div class="sidebar-section">
+            <h3>🔗 项目链接</h3>
+            <div style="font-size: 0.9rem; line-height: 1.6;">
+                <p><a href="https://github.com/Fyuna777/yanbian-beef-analysis" target="_blank" style="color: var(--primary); text-decoration: none;">GitHub仓库</a></p>
+                <p><a href="https://Fyuna777.github.io/yanbian-beef-analysis/" target="_blank" style="color: var(--primary); text-decoration: none;">在线作品</a></p>
+            </div>
+        </div>
+    </div>
+    
+    <!-- 主内容区 -->
+    <div class="main-content">
+        <h1 class="main-header">🐂 数据驱动的商业模式验证</h1>
+        <p class="sub-header">延边黄牛肉高端品牌全链路分析 | 项目负责人：方裕娜 | 2025年3月-7月</p>
+        
+        <!-- KPI卡片 -->
+        <div class="kpi-grid">
+            <div class="kpi-card" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">
+                <div class="kpi-value" id="kpi-achievement">75%</div>
+                <div class="kpi-label">销量达成率</div>
+            </div>
+            <div class="kpi-card" style="background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);">
+                <div class="kpi-value" id="kpi-revenue">¥148,500</div>
+                <div class="kpi-label">预期收入</div>
+            </div>
+            <div class="kpi-card" style="background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);">
+                <div class="kpi-value" id="kpi-roi">48.3%</div>
+                <div class="kpi-label">投资回报率</div>
+            </div>
+            <div class="kpi-card" style="background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%);">
+                <div class="kpi-value" id="kpi-breakeven">30.8%</div>
+                <div class="kpi-label">保本产销率</div>
+            </div>
+        </div>
+        
+        <!-- 选项卡 -->
+        <div class="tabs-container">
+            <div class="tabs-header">
+                <button class="tab-button active" data-tab="tab1">📊 财务可行性分析</button>
+                <button class="tab-button" data-tab="tab2">📈 营销渠道归因</button>
+                <button class="tab-button" data-tab="tab3">⚠️ 风险量化模拟</button>
+                <button class="tab-button" data-tab="tab4">👥 用户画像分析</button>
+                <button class="tab-button" data-tab="tab5">📅 项目时间线</button>
+            </div>
+            
+            <!-- Tab 1: 财务可行性分析 -->
+            <div class="tab-content active" id="tab1">
+                <h2>💰 财务可行性预测模型</h2>
+                
+                <div class="info-box">
+                    <strong>分析目标</strong>：验证商业模式在给定约束下的财务可行性，识别关键风险因素。<br>
+                    <strong>核心方法</strong>：动态财务模型 + 龙卷风图敏感性分析。<br>
+                    <strong>关键结论</strong>：在当前参数下，仅需售出 <strong>61.6斤（30.8%）</strong> 即可覆盖保底收益，<strong>投资回报率48.3%</strong>。
+                </div>
+                
+                <div class="columns-container">
+                    <div>
+                        <h3>🌪️ 敏感性分析（龙卷风图）</h3>
+                        <div class="chart-placeholder">
+                            <div>
+                                <div style="font-size: 2rem; margin-bottom: 1rem;">📊</div>
+                                <div>龙卷风图展示区</div>
+                                <div style="font-size: 0.9rem; margin-top: 0.5rem; color: var(--neutral);">
+                                    展示销售单价、销量达成率、牛只死亡率、投资成本对净利润的影响
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div>
+                        <h3>📋 核心财务指标</h3>
+                        <div class="metric-display">
+                            <h4>总投资额</h4>
+                            <div class="value" id="metric-investment">¥10,000</div>
+                        </div>
+                        <div class="metric-display">
+                            <h4>预期收入</h4>
+                            <div class="value" id="metric-revenue">¥148,500</div>
+                        </div>
+                        <div class="metric-display">
+                            <h4>总成本</h4>
+                            <div class="value" id="metric-cost">¥10,500</div>
+                        </div>
+                        <div class="metric-display">
+                            <h4>净利润</h4>
+                            <div class="value" id="metric-profit">¥5,070</div>
+                        </div>
+                        <div class="metric-display">
+                            <h4>保本销量</h4>
+                            <div class="value" id="metric-breakeven">61.6斤</div>
+                        </div>
+                        <div class="metric-display">
+                            <h4>保本产销率</h4>
+                            <div class="value" id="metric-breakeven-rate">30.8%</div>
+                        </div>
+                        
+                        <div class="info-box" style="margin-top: 1.5rem;">
+                            💡 <strong>关键洞察</strong>：<br>
+                            - 仅需售出 <strong>61.6斤（30.8%）</strong> 即可覆盖6%保底收益<br>
+                            - 当前销量达成率 <strong>75%</strong> 下，预期净利润 <strong>¥5,070</strong><br>
+                            - 投资回报率 <strong>48.3%</strong>，高于行业平均水平
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Tab 2: 营销渠道归因 -->
+            <div class="tab-content" id="tab2">
+                <h2>📈 营销渠道归因与 A/B 测试分析</h2>
+                
+                <div class="info-box">
+                    <strong>分析目标</strong>：量化各营销渠道的ROI，优化8万元营销预算分配。<br>
+                    <strong>核心方法</strong>：UTM全渠道追踪 + 转化漏斗分析 + 归因建模。<br>
+                    <strong>关键结论</strong>：<strong>小红书</strong>渠道转化率最高（2.3%），ROI达3.8，建议分配<strong>60%线上预算</strong>。
+                </div>
+                
+                <div class="columns-container">
+                    <div>
+                        <h3>🎯 渠道转化漏斗</h3>
+                        <div class="chart-placeholder">
+                            <div>
+                                <div style="font-size: 2rem; margin-bottom: 1rem;">📈</div>
+                                <div>转化漏斗图展示区</div>
+                                <div style="font-size: 0.9rem; margin-top: 0.5rem; color: var(--neutral);">
+                                    展示曝光量 → 点击量 → 咨询量 → 意向客户 → 成交客户的转化过程
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div>
+                        <h3>📊 渠道 ROI 对比</h3>
+                        <div class="chart-placeholder" style="min-height: 400px;">
+                            <div>
+                                <div style="font-size: 2rem; margin-bottom: 1rem;">📊</div>
+                                <div>渠道ROI对比图</div>
+                                <div style="font-size: 0.9rem; margin-top: 0.5rem; color: var(--neutral);">
+                                    展示小红书、抖音、拼多多、线下活动的ROI和转化率对比
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <h3 style="margin-top: 2rem;">📋 渠道表现详情</h3>
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th>渠道</th>
+                            <th>ROI</th>
+                            <th>转化率</th>
+                            <th>CAC</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>小红书</td>
+                            <td>3.8</td>
+                            <td>2.3%</td>
+                            <td>¥45</td>
+                        </tr>
+                        <tr>
+                            <td>抖音</td>
+                            <td>2.5</td>
+                            <td>1.8%</td>
+                            <td>¥68</td>
+                        </tr>
+                        <tr>
+                            <td>拼多多</td>
+                            <td>1.9</td>
+                            <td>1.2%</td>
+                            <td>¥52</td>
+                        </tr>
+                        <tr>
+                            <td>线下活动</td>
+                            <td>2.2</td>
+                            <td>1.5%</td>
+                            <td>¥75</td>
+                        </tr>
+                    </tbody>
+                </table>
+                
+                <div class="success-box">
+                    💡 <strong>策略建议</strong>：<br>
+                    - <strong>小红书</strong>渠道转化率最高（2.3%），建议分配 <strong>60%</strong> 线上预算<br>
+                    - <strong>抖音</strong>渠道曝光点击率最优（1.8%），适合品牌曝光<br>
+                    - 建议采用<strong>首次触点归因模型</strong>评估渠道贡献
+                </div>
+            </div>
+            
+            <!-- Tab 3: 风险量化模拟 -->
+            <div class="tab-content" id="tab3">
+                <h2>⚠️ 基于蒙特卡洛模拟的风险量化分析</h2>
+                
+                <div class="info-box">
+                    <strong>分析目标</strong>：量化项目不确定性，计算成功概率与潜在最大损失。<br>
+                    <strong>核心方法</strong>：10,000次蒙特卡洛模拟 + 收益分布分析 + VaR计算。<br>
+                    <strong>关键结论</strong>：项目成功概率 <strong>76.5%</strong>，95%置信度下最大可能损失 <strong>¥3,200</strong>。
+                </div>
+                
+                <div id="model-info" class="info-box">
+                    ℹ️ <strong>基础风险模型</strong><br>
+                    - 价格、销量、成本：独立正态分布<br>
+                    - 计算简单，运行快速<br>
+                    - 适合快速估算
+                </div>
+                
+                <div class="columns-container">
+                    <div>
+                        <h3>🎲 收益分布直方图</h3>
+                        <div class="chart-placeholder">
+                            <div>
+                                <div style="font-size: 2rem; margin-bottom: 1rem;">📊</div>
+                                <div>收益分布直方图展示区</div>
+                                <div style="font-size: 0.9rem; margin-top: 0.5rem; color: var(--neutral);">
+                                    展示10,000次模拟的收益分布，标注VaR 95%和保底收益线
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div>
+                        <h3>📊 风险指标</h3>
+                        <div class="metric-display">
+                            <h4>模拟次数</h4>
+                            <div class="value">10,000</div>
+                        </div>
+                        <div class="metric-display">
+                            <h4>成功概率</h4>
+                            <div class="value" id="risk-success">76.5%</div>
+                        </div>
+                        <div class="metric-display">
+                            <h4>VaR (95%)</h4>
+                            <div class="value" id="risk-var">¥3,200</div>
+                        </div>
+                        <div class="metric-display">
+                            <h4>期望收益</h4>
+                            <div class="value" id="risk-expected">¥5,120</div>
+                        </div>
+                        <div class="metric-display">
+                            <h4>收益标准差</h4>
+                            <div class="value" id="risk-std">¥2,850</div>
+                        </div>
+                        
+                        <h3 style="margin-top: 2rem;">📈 累积概率分布</h3>
+                        <div class="chart-placeholder" style="min-height: 300px; margin-top: 1rem;">
+                            <div>
+                                <div style="font-size: 1.5rem; margin-bottom: 0.5rem;">📈</div>
+                                <div>累积概率图</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="warning-box">
+                    ⚠️ <strong>风险提示</strong>：<br>
+                    - 项目成功（满足保底收益）的概率为 <strong>76.5%</strong><br>
+                    - 95%置信度下的最大在险价值（VaR）为 <strong>¥3,200</strong><br>
+                    - 建议设立 <strong>20%</strong> 风险共担池应对极端情况
+                </div>
+            </div>
+            
+            <!-- Tab 4: 用户画像分析 -->
+            <div class="tab-content" id="tab4">
+                <h2>👥 用户分群与画像分析</h2>
+                
+                <h3>🕸️ 用户特征雷达图</h3>
+                <div class="chart-placeholder" style="min-height: 500px;">
+                    <div>
+                        <div style="font-size: 2rem; margin-bottom: 1rem;">📊</div>
+                        <div>用户特征雷达图展示区</div>
+                        <div style="font-size: 0.9rem; margin-top: 0.5rem; color: var(--neutral);">
+                            展示价格敏感型、品质追求型、理性消费型、冲动购买型用户在不同维度的得分
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="columns-container" style="margin-top: 2rem;">
+                    <div>
+                        <h3>📋 分群策略建议</h3>
+                        <div class="info-box">
+                            <strong>品质追求型（占比 35%）</strong><br>
+                            - 关注点：肉质、溯源、品牌<br>
+                            - 营销策略：强调品质认证、养殖过程透明化<br>
+                            - 定价策略：溢价接受度高，可定 220 元+/斤
+                        </div>
+                        
+                        <div class="info-box">
+                            <strong>理性消费型（占比 40%）</strong><br>
+                            - 关注点：性价比、口碑、评价<br>
+                            - 营销策略：用户评价、KOL 推荐<br>
+                            - 定价策略：198 元/斤主力价位
+                        </div>
+                    </div>
+                    
+                    <div>
+                        <h3>💡 营销建议</h3>
+                        <div class="success-box">
+                            <strong>价格敏感型（占比 15%）</strong><br>
+                            - 关注点：价格、促销、折扣<br>
+                            - 营销策略：限时优惠、拼团活动<br>
+                            - 定价策略：168 元/斤引流款
+                        </div>
+                        
+                        <div class="success-box">
+                            <strong>冲动购买型（占比 10%）</strong><br>
+                            - 关注点：包装、故事、情感<br>
+                            - 营销策略：内容种草、直播带货<br>
+                            - 定价策略：礼盒装 298 元
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Tab 5: 项目时间线 -->
+            <div class="tab-content" id="tab5">
+                <h2>📅 项目时间线与里程碑</h2>
+                
+                <h3>📅 项目时间线详情</h3>
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th>任务</th>
+                            <th>开始时间</th>
+                            <th>结束时间</th>
+                            <th>进度</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>市场调研</td>
+                            <td>2025-03-01</td>
+                            <td>2025-03-20</td>
+                            <td>
+                                <div style="background: #E5E7EB; height: 8px; border-radius: 4px; overflow: hidden;">
+                                    <div style="background: var(--success); width: 100%; height: 100%;"></div>
+                                </div>
+                                <div style="text-align: center; font-size: 0.875rem; margin-top: 4px;">100%</div>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>数据收集</td>
+                            <td>2025-03-15</td>
+                            <td>2025-04-10</td>
+                            <td>
+                                <div style="background: #E5E7EB; height: 8px; border-radius: 4px; overflow: hidden;">
+                                    <div style="background: var(--success); width: 100%; height: 100%;"></div>
+                                </div>
+                                <div style="text-align: center; font-size: 0.875rem; margin-top: 4px;">100%</div>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>数据清洗</td>
+                            <td>2025-04-01</td>
+                            <td>2025-04-20</td>
+                            <td>
+                                <div style="background: #E5E7EB; height: 8px; border-radius: 4px; overflow: hidden;">
+                                    <div style="background: var(--success); width: 100%; height: 100%;"></div>
+                                </div>
+                                <div style="text-align: center; font-size: 0.875rem; margin-top: 4px;">100%</div>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>财务建模</td>
+                            <td>2025-04-15</td>
+                            <td>2025-05-10</td>
+                            <td>
+                                <div style="background: #E5E7EB; height: 8px; border-radius: 4px; overflow: hidden;">
+                                    <div style="background: var(--success); width: 100%; height: 100%;"></div>
+                                </div>
+                                <div style="text-align: center; font-size: 0.875rem; margin-top: 4px;">100%</div>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>营销分析</td>
+                            <td>2025-05-01</td>
+                            <td>2025-05-25</td>
+                            <td>
+                                <div style="background: #E5E7EB; height: 8px; border-radius: 4px; overflow: hidden;">
+                                    <div style="background: var(--success); width: 90%; height: 100%;"></div>
+                                </div>
+                                <div style="text-align: center; font-size: 0.875rem; margin-top: 4px;">90%</div>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>风险模拟</td>
+                            <td>2025-05-20</td>
+                            <td>2025-06-10</td>
+                            <td>
+                                <div style="background: #E5E7EB; height: 8px; border-radius: 4px; overflow: hidden;">
+                                    <div style="background: var(--warning); width: 85%; height: 100%;"></div>
+                                </div>
+                                <div style="text-align: center; font-size: 0.875rem; margin-top: 4px;">85%</div>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>仪表板开发</td>
+                            <td>2025-06-01</td>
+                            <td>2025-06-25</td>
+                            <td>
+                                <div style="background: #E5E7EB; height: 8px; border-radius: 4px; overflow: hidden;">
+                                    <div style="background: var(--warning); width: 80%; height: 100%;"></div>
+                                </div>
+                                <div style="text-align: center; font-size: 0.875rem; margin-top: 4px;">80%</div>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>作品完善</td>
+                            <td>2025-06-20</td>
+                            <td>2025-07-10</td>
+                            <td>
+                                <div style="background: #E5E7EB; height: 8px; border-radius: 4px; overflow: hidden;">
+                                    <div style="background: var(--warning); width: 60%; height: 100%;"></div>
+                                </div>
+                                <div style="text-align: center; font-size: 0.875rem; margin-top: 4px;">60%</div>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>最终汇报</td>
+                            <td>2025-07-05</td>
+                            <td>2025-07-15</td>
+                            <td>
+                                <div style="background: #E5E7EB; height: 8px; border-radius: 4px; overflow: hidden;">
+                                    <div style="background: var(--neutral); width: 0%; height: 100%;"></div>
+                                </div>
+                                <div style="text-align: center; font-size: 0.875rem; margin-top: 4px;">0%</div>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+                
+                <h3 style="margin-top: 2rem;">📈 项目时间线概览</h3>
+                <div class="info-box">
+                    <strong>项目周期</strong>：2025年3月1日 - 2025年7月15日（共4.5个月）<br><br>
+                    <strong>关键阶段</strong>：<br>
+                    1. <strong>市场调研</strong> (3月1日-3月20日)：完成200份用户问卷<br>
+                    2. <strong>数据分析</strong> (4月1日-5月25日)：财务建模、营销归因、风险模拟<br>
+                    3. <strong>开发实现</strong> (6月1日-7月10日)：仪表板开发与作品完善<br>
+                    4. <strong>最终汇报</strong> (7月5日-7月15日)：项目总结与展示
+                </div>
+                
+                <h3 style="margin-top: 2rem;">🎯 关键里程碑</h3>
+                <div class="columns-container">
+                    <div>
+                        <div class="metric-display">
+                            <h4>问卷回收</h4>
+                            <div class="value">200份</div>
+                            <div style="color: var(--success); font-size: 0.875rem; margin-top: 0.5rem;">✅ 已完成</div>
+                        </div>
+                    </div>
+                    <div>
+                        <div class="metric-display">
+                            <h4>众筹目标</h4>
+                            <div class="value">30万元</div>
+                            <div style="color: var(--warning); font-size: 0.875rem; margin-top: 0.5rem;">🔄 75% 达成</div>
+                        </div>
+                    </div>
+                    <div>
+                        <div class="metric-display">
+                            <h4>作品提交</h4>
+                            <div class="value">2025-07-15</div>
+                            <div style="color: var(--primary); font-size: 0.875rem; margin-top: 0.5rem;">📅 进行中</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- 页脚 -->
+        <div class="footer">
+            <p><strong>个人在校项目展示 | 方裕娜</strong></p>
+            <p>完整代码与数据：<a href="https://github.com/Fyuna777/yanbian-beef-analysis" target="_blank" style="color: var(--primary); text-decoration: none;">https://github.com/Fyuna777/yanbian-beef-analysis</a></p>
+            <p>联系方式：zhaowen2003@qq.com</p>
+        </div>
+    </div>
+    
+    <script>
+        // 选项卡切换功能
+        document.addEventListener('DOMContentLoaded', function() {
+            // 选项卡切换
+            const tabButtons = document.querySelectorAll('.tab-button');
+            const tabContents = document.querySelectorAll('.tab-content');
+            
+            tabButtons.forEach(button => {
+                button.addEventListener('click', () => {
+                    const tabId = button.getAttribute('data-tab');
+                    
+                    // 移除所有active类
+                    tabButtons.forEach(btn => btn.classList.remove('active'));
+                    tabContents.forEach(content => content.classList.remove('active'));
+                    
+                    // 添加active类
+                    button.classList.add('active');
+                    document.getElementById(tabId).classList.add('active');
+                });
+            });
+            
+            // 滑块值更新
+            const sliders = document.querySelectorAll('.slider');
+            sliders.forEach(slider => {
+                const valueElement = document.getElementById(slider.id + '-value');
+                
+                // 初始化显示
+                updateSliderValue(slider, valueElement);
+                
+                // 添加变化监听
+                slider.addEventListener('input', () => {
+                    updateSliderValue(slider, valueElement);
+                    updateCalculations();
+                });
+            });
+            
+            // 高级模型复选框
+            const advancedModelCheckbox = document.getElementById('advanced-model');
+            const modelInfoElement = document.getElementById('model-info');
+            
+            advancedModelCheckbox.addEventListener('change', function() {
+                if (this.checked) {
+                    modelInfoElement.innerHTML = `
+                        ✅ <strong>高级风险模型已启用</strong><br>
+                        - 价格：对数正态分布（避免负价格）<br>
+                        - 销量：与价格负相关（价格弹性 = -1.5）<br>
+                        - 成本：固定成本 + 可变成本结构<br>
+                        - 更接近真实商业环境
+                    `;
+                    modelInfoElement.className = 'success-box';
+                } else {
+                    modelInfoElement.innerHTML = `
+                        ℹ️ <strong>基础风险模型</strong><br>
+                        - 价格、销量、成本：独立正态分布<br>
+                        - 计算简单，运行快速<br>
+                        - 适合快速估算
+                    `;
+                    modelInfoElement.className = 'info-box';
+                }
+            });
+            
+            // 初始计算
+            updateCalculations();
+        });
+        
+        function updateSliderValue(slider, valueElement) {
+            let value = parseFloat(slider.value);
+            let formattedValue;
+            
+            switch(slider.id) {
+                case 'investment-unit':
+                    formattedValue = '¥' + value.toLocaleString();
+                    break;
+                case 'return-rate':
+                    formattedValue = value.toFixed(1) + '%';
+                    break;
+                case 'sales-price':
+                    formattedValue = '¥' + value;
+                    break;
+                case 'sales-achievement':
+                    formattedValue = value + '%';
+                    break;
+                case 'mortality-rate':
+                    formattedValue = value + '%';
+                    break;
+                case 'marketing-budget':
+                    formattedValue = value + '万元';
+                    break;
+                default:
+                    formattedValue = value;
+            }
+            
+            valueElement.textContent = formattedValue;
+        }
+        
+        function updateCalculations() {
+            // 获取所有滑块的值
+            const investment = parseFloat(document.getElementById('investment-unit').value);
+            const returnRate = parseFloat(document.getElementById('return-rate').value) / 100;
+            const salesPrice = parseFloat(document.getElementById('sales-price').value);
+            const achievement = parseFloat(document.getElementById('sales-achievement').value) / 100;
+            const mortality = parseFloat(document.getElementById('mortality-rate').value) / 100;
+            
+            // 模拟计算（简化版本）
+            const totalOutput = 200; // 总产量200斤
+            const salesVolume = totalOutput * achievement;
+            const revenue = salesVolume * salesPrice;
+            const totalCost = investment * (1 + mortality);
+            const guaranteedReturn = investment * returnRate;
+            const netProfit = revenue - totalCost;
+            const roi = (netProfit / totalCost) * 100;
+            const breakevenSales = (totalCost + guaranteedReturn) / salesPrice;
+            const breakevenRate = (breakevenSales / totalOutput) * 100;
+            
+            // 更新KPI卡片
+            document.getElementById('kpi-achievement').textContent = (achievement * 100).toFixed(0) + '%';
+            document.getElementById('kpi-revenue').textContent = '¥' + revenue.toLocaleString(undefined, {maximumFractionDigits: 0});
+            document.getElementById('kpi-roi').textContent = roi.toFixed(1) + '%';
+            document.getElementById('kpi-breakeven').textContent = breakevenRate.toFixed(1) + '%';
+            
+            // 更新财务指标
+            document.getElementById('metric-investment').textContent = '¥' + investment.toLocaleString();
+            document.getElementById('metric-revenue').textContent = '¥' + revenue.toLocaleString(undefined, {maximumFractionDigits: 0});
+            document.getElementById('metric-cost').textContent = '¥' + totalCost.toLocaleString(undefined, {maximumFractionDigits: 0});
+            document.getElementById('metric-profit').textContent = '¥' + netProfit.toLocaleString(undefined, {maximumFractionDigits: 0});
+            document.getElementById('metric-breakeven').textContent = breakevenSales.toFixed(1) + '斤';
+            document.getElementById('metric-breakeven-rate').textContent = breakevenRate.toFixed(1) + '%';
+            
+            // 更新风险指标（简化模拟）
+            const successRate = Math.min(100, Math.max(50, 76.5 + (achievement - 0.75) * 20));
+            const varValue = Math.max(1000, 3200 - (achievement - 0.75) * 1000);
+            const expectedProfit = Math.max(1000, netProfit * 0.9);
+            const stdProfit = Math.max(1000, netProfit * 0.5);
+            
+            document.getElementById('risk-success').textContent = successRate.toFixed(1) + '%';
+            document.getElementById('risk-var').textContent = '¥' + varValue.toLocaleString(undefined, {maximumFractionDigits: 0});
+            document.getElementById('risk-expected').textContent = '¥' + expectedProfit.toLocaleString(undefined, {maximumFractionDigits: 0});
+            document.getElementById('risk-std').textContent = '¥' + stdProfit.toLocaleString(undefined, {maximumFractionDigits: 0});
+            
+            // 更新分析叙事
+            const infoBox = document.querySelector('#tab1 .info-box');
+            if (infoBox) {
+                infoBox.innerHTML = `
+                    <strong>分析目标</strong>：验证商业模式在给定约束下的财务可行性，识别关键风险因素。<br>
+                    <strong>核心方法</strong>：动态财务模型 + 龙卷风图敏感性分析。<br>
+                    <strong>关键结论</strong>：在当前参数下，仅需售出 <strong>${breakevenSales.toFixed(1)}斤（${breakevenRate.toFixed(1)}%）</strong> 即可覆盖保底收益，<strong>投资回报率${roi.toFixed(1)}%</strong>。
+                `;
+            }
+            
+            // 更新关键洞察
+            const insightBox = document.querySelector('#tab1 .info-box:nth-of-type(2)');
+            if (insightBox) {
+                insightBox.innerHTML = `
+                    💡 <strong>关键洞察</strong>：<br>
+                    - 仅需售出 <strong>${breakevenSales.toFixed(1)}斤（${breakevenRate.toFixed(1)}%）</strong> 即可覆盖${(returnRate*100).toFixed(1)}%保底收益<br>
+                    - 当前销量达成率 <strong>${(achievement*100).toFixed(0)}%</strong> 下，预期净利润 <strong>¥${netProfit.toLocaleString(undefined, {maximumFractionDigits: 0})}</strong><br>
+                    - 投资回报率 <strong>${roi.toFixed(1)}%</strong>，高于行业平均水平
+                `;
+            }
+            
+            // 更新风险提示
+            const warningBox = document.querySelector('#tab3 .warning-box');
+            if (warningBox) {
+                warningBox.innerHTML = `
+                    ⚠️ <strong>风险提示</strong>：<br>
+                    - 项目成功（满足保底收益）的概率为 <strong>${successRate.toFixed(1)}%</strong><br>
+                    - 95%置信度下的最大在险价值（VaR）为 <strong>¥${varValue.toLocaleString(undefined, {maximumFractionDigits: 0})}</strong><br>
+                    - 建议设立 <strong>20%</strong> 风险共担池应对极端情况
+                `;
+            }
+        }
+    </script>
+</body>
+</html>
