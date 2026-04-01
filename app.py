@@ -250,6 +250,47 @@ with col4:
 
 st.markdown("---")
 
+# 在KPI卡片之后添加
+if ask_button and user_question:
+    with st.spinner("🤔 AI正在思考..."):
+        # 收集当前应用参数
+        current_params = {
+            "investment_unit": investment_unit,
+            "return_rate": guaranteed_return_rate,
+            "sales_price": sales_price,
+            "sales_achievement": sales_achievement,
+            "mortality_rate": mortality_rate,
+            "marketing_budget": marketing_budget,
+            "use_advanced_model": use_advanced_model
+        }
+        
+        # 获取上下文描述
+        context = get_app_context(current_params)
+        
+        # 创建AI助手实例
+        assistant = AIAssistant(st.session_state.zhipu_api_key)
+        
+        # 获取AI回答
+        ai_response = assistant.ask_question(user_question, context)
+    
+    # 显示AI回答
+    st.markdown("---")
+    st.subheader("💡 AI 分析建议")
+    
+    # 美化显示区域
+    with st.container():
+        st.markdown(f"""
+        <div style="
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            padding: 20px;
+            border-radius: 10px;
+            border-left: 5px solid #3B82F6;
+            margin: 10px 0;
+        ">
+        {ai_response}
+        </div>
+        """, unsafe_allow_html=True)
+
 # ==================== 选项卡式内容区 ====================
 tab1, tab2, tab3, tab4, tab5 = st.tabs([
     "📊 财务可行性分析",
