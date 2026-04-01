@@ -13,8 +13,10 @@ from plotly.subplots import make_subplots
 import json
 from datetime import datetime, timedelta
 import plotly.io as pio
-# 在文件开头的导入部分添加
+# 新增的AI助手导入
 from ai_assistant import AIAssistant, get_app_context
+from dotenv import load_dotenv
+load_dotenv()  # 加载环境变量
 
 # 导入自定义计算模块
 from utils.calculations import (
