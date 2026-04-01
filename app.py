@@ -16,7 +16,10 @@ import plotly.io as pio
 # 新增的AI助手导入
 from ai_assistant import AIAssistant, get_app_context
 from dotenv import load_dotenv
-load_dotenv()  # 加载环境变量
+try:
+    load_dotenv()  # 加载环境变量
+except:
+    pass  # 如果.env文件有问题，就跳过
 
 # 导入自定义计算模块
 from utils.calculations import (
@@ -104,13 +107,10 @@ st.markdown("""
 
 # ==================== 初始化会话状态 ====================
 # 在侧边栏渲染前，确保所有可能由侧边栏控件控制的session_state变量都有初始值
-# 这能极大避免前端渲染时的状态不一致错误
 if 'use_advanced_model' not in st.session_state:
     st.session_state.use_advanced_model = False
-# 可以继续初始化其他可能由控件影响的状态，例如：
-# if 'some_slider_value' not in st.session_state:
-#     st.session_state.some_slider_value = 100
-
+if 'zhipu_api_key' not in st.session_state:
+    st.session_state.zhipu_api_key = ""
 
 # ==================== 侧边栏参数控制 ====================
 with st.sidebar:
@@ -183,7 +183,35 @@ with st.sidebar:
     
     st.info("💡 **提示**：拖动滑块实时查看分析结果变化")
     
+    # ==================== AI 智能助手 ====================
+    st.markdown("---")
+    st.subheader("🤖 AI 分析助手")
+    
+    # 输入API Key（首次使用时需要）
+    api_key_input = st.text_input(
+        "智谱API Key（首次使用需输入）", 
+        type="password",
+        help="请输入您的智谱AI API Key。获取地址：https://open.bigmodel.cn/dev/api"
+    )
+    
+    # 存储API Key到session_state
+    if api_key_input:
+        st.session_state.zhipu_api_key = api_key_input
+    elif 'zhipu_api_key' not in st.session_state:
+        st.session_state.zhipu_api_key = ""
+    
+    # 用户问题输入框
+    user_question = st.text_area(
+        "请输入您的问题：",
+        placeholder="例如：当前设置的参数有哪些风险？如果牛肉降价10%会怎样？如何提高投资回报率？",
+        height=100
+    )
+    
+    # 提问按钮
+    ask_button = st.button("🚀 提问", use_container_width=True, key="ai_ask_button")
+    
     # GitHub链接
+    st.markdown("---")
     st.markdown("""
     ### 🔗 项目链接
     - [GitHub仓库](https://github.com/Fyuna777/yanbian-beef-analysis)
@@ -250,10 +278,9 @@ with col4:
     </div>
     """, unsafe_allow_html=True)
 
-st.markdown("---")
-
-# 在KPI卡片之后添加
-if ask_button and user_question:
+# ==================== AI 回答处理 ====================
+# 检查AI提问按钮是否被点击
+if 'ai_ask_button' in st.session_state and st.session_state.ai_ask_button and user_question:
     with st.spinner("🤔 AI正在思考..."):
         # 收集当前应用参数
         current_params = {
@@ -292,6 +319,8 @@ if ask_button and user_question:
         {ai_response}
         </div>
         """, unsafe_allow_html=True)
+
+st.markdown("---")
 
 # ==================== 选项卡式内容区 ====================
 tab1, tab2, tab3, tab4, tab5 = st.tabs([
@@ -757,32 +786,6 @@ with tab5:
         st.metric("众筹目标", "30 万元", "🔄 75% 达成")
     with col3:
         st.metric("作品提交", "2025-07-15", "📅 进行中")
-# ==================== AI 智能助手 ====================
-st.sidebar.markdown("---")
-st.sidebar.subheader("🤖 AI 分析助手")
-
-# 输入API Key（首次使用时需要）
-api_key_input = st.sidebar.text_input(
-    "智谱API Key（首次使用需输入）", 
-    type="password",
-    help="请输入您的智谱AI API Key。获取地址：https://open.bigmodel.cn/dev/api"
-)
-
-# 存储API Key到session_state
-if api_key_input:
-    st.session_state.zhipu_api_key = api_key_input
-elif 'zhipu_api_key' not in st.session_state:
-    st.session_state.zhipu_api_key = ""
-
-# 用户问题输入框
-user_question = st.sidebar.text_area(
-    "请输入您的问题：",
-    placeholder="例如：当前设置的参数有哪些风险？如果牛肉降价10%会怎样？如何提高投资回报率？",
-    height=100
-)
-
-# 提问按钮
-ask_button = st.sidebar.button("🚀 提问", use_container_width=True)       
 
 # ==================== 页脚 ====================
 st.markdown("---")
