@@ -13,6 +13,8 @@ from plotly.subplots import make_subplots
 import json
 from datetime import datetime, timedelta
 import plotly.io as pio
+# 在文件开头的导入部分添加
+from ai_assistant import AIAssistant, get_app_context
 
 # 导入自定义计算模块
 from utils.calculations import (
@@ -712,6 +714,32 @@ with tab5:
         st.metric("众筹目标", "30 万元", "🔄 75% 达成")
     with col3:
         st.metric("作品提交", "2025-07-15", "📅 进行中")
+# ==================== AI 智能助手 ====================
+st.sidebar.markdown("---")
+st.sidebar.subheader("🤖 AI 分析助手")
+
+# 输入API Key（首次使用时需要）
+api_key_input = st.sidebar.text_input(
+    "智谱API Key（首次使用需输入）", 
+    type="password",
+    help="请输入您的智谱AI API Key。获取地址：https://open.bigmodel.cn/dev/api"
+)
+
+# 存储API Key到session_state
+if api_key_input:
+    st.session_state.zhipu_api_key = api_key_input
+elif 'zhipu_api_key' not in st.session_state:
+    st.session_state.zhipu_api_key = ""
+
+# 用户问题输入框
+user_question = st.sidebar.text_area(
+    "请输入您的问题：",
+    placeholder="例如：当前设置的参数有哪些风险？如果牛肉降价10%会怎样？如何提高投资回报率？",
+    height=100
+)
+
+# 提问按钮
+ask_button = st.sidebar.button("🚀 提问", use_container_width=True)       
 
 # ==================== 页脚 ====================
 st.markdown("---")
