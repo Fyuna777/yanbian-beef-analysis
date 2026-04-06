@@ -48,6 +48,9 @@ class CustomJSONEncoder(json.JSONEncoder):
 pio.json.config.default_encoder = CustomJSONEncoder
 
 # ==================== 页面配置 ====================
+# 清除所有缓存
+st.cache_data.clear()
+st.cache_resource.clear()
 st.set_page_config(
     page_title="延边黄牛肉数据分析 | 方裕娜",
     page_icon="🐂",
