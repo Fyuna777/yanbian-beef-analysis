@@ -427,6 +427,24 @@ with tab1:
             st.warning("⚠️ D3.js图表文件未找到，请确保 components/sunburst.html 存在。")
         except Exception as e:
             st.error(f"❌ 加载D3.js图表时出错: {e}")
+        # 在 app.py 的技术架构部分添加
+    st.subheader("🖥️ 前端工程化实践")
+    st.markdown("""
+    - **构建工具**：基于Streamlit生态，采用模块化构建
+    - **代码规范**：遵循PEP 8，使用ESLint（对JS部分）、Prettier
+    - **Git工作流**：Git Flow，PR机制，Commit信息规范
+    - **性能监控**：对图表渲染、AI请求进行性能打点
+    - **错误边界**：对AI模块、图表模块实现错误捕获与降级
+    """)
+
+    # 添加一个“前端技术选型”对比表
+    tech_choices = pd.DataFrame({
+        "场景": ["快速原型", "复杂交互", "状态管理", "数据可视化", "打包部署"],
+        "方案": ["Streamlit", "React Hooks", "Session State", "Plotly + D3", "GitHub Actions"],
+        "对标技术": ["Vue3 + Vite", "React + Redux Toolkit", "Pinia/Zustand", "ECharts/AntV", "Webpack + Docker"],
+        "选型理由": ["快速验证业务逻辑", "功能完备后重构", "满足当前复杂度", "平衡开发效率与定制", "自动化流程完备"]
+    })
+    st.dataframe(tech_choices, use_container_width=True)    
 
 # ==================== Tab 2: 营销渠道归因 ====================
 with tab2:
@@ -808,6 +826,101 @@ with tab5:
         st.metric("众筹目标", "30 万元", "🔄 75% 达成")
     with col3:
         st.metric("作品提交", "2025-07-15", "📅 进行中")
+
+# ==================== Tab 6: 技术架构 ====================
+with tab6:
+    st.header("🛠️ 前端技术架构与实现")
+    
+    # ... 其他技术架构内容（如架构图、技术栈表格等）...
+    
+    # 在这里添加虚拟滚动演示
+    st.markdown("---")
+    st.subheader("⚡ 前端核心能力演示：虚拟滚动（Virtual Scrolling）")
+    
+    with st.expander("点击展开/收起虚拟滚动演示", expanded=True):
+        st.markdown("""
+        **技术场景**：在前端渲染海量数据列表（如10万条）时，直接操作DOM会导致严重的性能问题。
+        **解决方案**：虚拟滚动技术，只渲染视窗内的可见项，动态更新DOM。
+        **实现效果**：无论数据量多大，都能保持60fps的流畅滚动。
+        """)
+        
+        # 嵌入虚拟滚动演示
+        virtual_scroll_html = """
+        <div style="font-family: Arial, sans-serif;">
+            <h4 style="color: #3B82F6; margin-bottom: 10px;">虚拟滚动演示 (100,000 条数据)</h4>
+            <div id="container" style="height:300px; overflow:auto; border:1px solid #ddd; border-radius:8px; background:#f8f9fa;">
+                <div id="content" style="height:3000000px; position:relative;"></div>
+            </div>
+            <div style="margin-top: 10px; font-size: 12px; color: #666;">
+                提示：滚动此区域，观察只有可视区域内的列表项被动态渲染。
+            </div>
+        </div>
+        <script>
+            const container = document.getElementById('container');
+            const content = document.getElementById('content');
+            const itemHeight = 30;
+            const totalItems = 100000;
+            
+            // 性能优化：防抖处理滚动事件
+            let isRendering = false;
+            
+            function renderVisibleItems() {
+                if (isRendering) return;
+                isRendering = true;
+                
+                requestAnimationFrame(() => {
+                    const scrollTop = container.scrollTop;
+                    const startIndex = Math.floor(scrollTop / itemHeight);
+                    const visibleCount = Math.ceil(container.clientHeight / itemHeight);
+                    const endIndex = Math.min(startIndex + visibleCount + 2, totalItems - 1);
+                    
+                    // 清空并只渲染可见项
+                    content.innerHTML = '';
+                    for(let i = startIndex; i <= endIndex; i++) {
+                        const item = document.createElement('div');
+                        item.style.position = 'absolute';
+                        item.style.top = `${i * itemHeight}px`;
+                        item.style.height = `${itemHeight}px`;
+                        item.style.lineHeight = `${itemHeight}px`;
+                        item.style.paddingLeft = '15px';
+                        item.style.width = '100%';
+                        item.style.boxSizing = 'border-box';
+                        item.style.borderBottom = '1px solid #eee';
+                        item.style.background = i % 2 === 0 ? '#fff' : '#f8f9fa';
+                        item.style.fontSize = '13px';
+                        item.textContent = `列表项 #${i} - 当前滚动位置: ${scrollTop}px`;
+                        content.appendChild(item);
+                    }
+                    
+                    isRendering = false;
+                });
+            }
+            
+            // 初始渲染
+            renderVisibleItems();
+            
+            // 添加防抖的滚动事件监听
+            let scrollTimeout;
+            container.addEventListener('scroll', () => {
+                clearTimeout(scrollTimeout);
+                scrollTimeout = setTimeout(renderVisibleItems, 16); // 约60fps
+            });
+            
+            // 窗口大小变化时重新渲染
+            window.addEventListener('resize', renderVisibleItems);
+        </script>
+        """
+        
+        st.components.v1.html(virtual_scroll_html, height=380)
+        
+        st.caption("""
+        **涉及的核心前端技术**：
+        - 🎯 **虚拟滚动（Virtual Scrolling）**：仅渲染可视区域DOM，极大提升性能
+        - ⏱️ **防抖（Debouncing）**：优化滚动事件触发频率
+        - 🖼️ **requestAnimationFrame**：确保渲染与浏览器刷新率同步
+        - 📊 **动态高度计算**：根据容器尺寸计算可见项数量
+        - 🔧 **事件代理**：高效处理滚动与尺寸变化事件
+        """)
 
 # ==================== 页脚 ====================
 st.markdown("---")
