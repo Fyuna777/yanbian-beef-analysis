@@ -326,12 +326,13 @@ if 'ai_ask_button' in st.session_state and st.session_state.ai_ask_button and us
 st.markdown("---")
 
 # ==================== 选项卡式内容区 ====================
-tab1, tab2, tab3, tab4, tab5 = st.tabs([
+tab1, tab2, tab3, tab4, tab5,tab6 = st.tabs([
     "📊 财务可行性分析",
     "📈 营销渠道归因",
     "⚠️ 风险量化模拟",
     "👥 用户画像分析",
-    "📅 项目时间线"
+    "📅 项目时间线",
+    "🛠️ 技术架构"  
 ])
 
 # ==================== Tab 1: 财务可行性分析 ====================
