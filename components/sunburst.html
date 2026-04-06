@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <script src="https://d3js.org/d3.v7.min.js"></script>
+    <style>
+        body { margin: 0; padding: 0; }
+        #chart-container { width: 100%; text-align: center; }
+        #chart { display: inline-block; }
+        .tooltip { 
+            position: absolute; 
+            background: white; 
+            padding: 8px 12px; 
+            border: 1px solid #ddd; 
+            border-radius: 4px; 
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            pointer-events: none;
+            font-family: Arial, sans-serif;
+            font-size: 12px;
+        }
+    </style>
+</head>
+<body>
+    <div id="chart-container">
+        <svg id="chart" width="500" height="400"></svg>
+    </div>
+    <div class="tooltip" style="opacity:0"></div>
+    
+    <script>
+    // 成本结构数据
+    const data = {
+        name: "总成本",
+        children: [
+            {name: "饲料成本", value: 40, description: "包括玉米、豆粕等"},
+            {name: "人工管理", value: 25, description: "养殖员、管理人员工资"},
+            {name: "医疗防疫", value: 15, description: "疫苗、兽药、定期检查"},
+            {name: "场地折旧", value: 10, description: "牛舍、设备折旧"},
+            {name: "其他杂费", value: 10, description: "水电、运输、保险等"}
+        ]
+    };
+    
+    // 设置图表尺寸
+    const width = 500, height = 400;
+    const radius = Math.min(width, height) / 2;
+    
+    // 颜色方案
+    const color = d3.scaleOrdinal()
+        .domain(data.children.map(d => d.name))
+        .range(["#3B82F6", "#10B981", "#F59E0B", "#EF4444", "#8B5CF6"]);
+    
+    // 创建分区布局
+    const partition = data => d3.partition()
+        .size([2 * Math.PI, radius])
+        (d3.hierarchy(data)
+            .sum(d => d.value)
+            .sort((a, b) => b.value - a.value));
+    
+    // 创建弧生成器
+    const arc = d3.arc()
+        .startAngle(d => d.x0)
+        .endAngle(d => d.x1)
+        .innerRadius(d => d.y0)
+        .outerRadius(d => d.y1);
+    
+    // 创建SVG容器
+    const svg = d3.select("#chart")
+        .attr("viewBox", [0, 0, width, height])
+        .append("g")
+        .attr("transform", `translate(${width/2},${height/2})`);
+    
+    // 处理数据
+    const root = partition(data);
+    
+    // 绘制扇形
+    svg.selectAll("path")
+        .data(root.descendants().filter(d => d.depth))  // 过滤掉根节点
+        .enter().append("path")
+        .attr("d", arc)
+        .style("fill", d => color(d.data.name))
+        .style("stroke", "#fff")
+        .style("stroke-width", 1)
+        .style("opacity", 0.8)
+        .on("mouseover", function(event, d) {
+            // 高亮当前扇形
+            d3.select(this)
+                .style("opacity", 1)
+                .style("stroke-width", 2);
+            
+            // 显示工具提示
+            d3.select(".tooltip")
+                .style("opacity", 1)
+                .html(`
+                    <strong>${d.data.name}</strong><br/>
+                    占比: <b>${d.data.value}%</b><br/>
+                    <small>${d.data.description || ""}</small>
+                `)
+                .style("left", (event.pageX + 15) + "px")
+                .style("top", (event.pageY - 15) + "px");
+        })
+        .on("mouseout", function() {
+            // 恢复原状
+            d3.select(this)
+                .style("opacity", 0.8)
+                .style("stroke-width", 1);
+            
+            // 隐藏工具提示
+            d3.select(".tooltip").style("opacity", 0);
+        });
+    
+    // 添加标签
+    svg.selectAll("text")
+        .data(root.descendants().filter(d => d.depth && (d.y1 - d.y0) * (d.x1 - d.x0) > 0.1))
+        .enter().append("text")
+        .attr("transform", function(d) {
+            const x = (d.x0 + d.x1) / 2 * 180 / Math.PI;
+            const y = (d.y0 + d.y1) / 2;
+            return `rotate(${x - 90}) translate(${y},0) rotate(${x < 180 ? 0 : 180})`;
+        })
+        .attr("dy", "0.35em")
+        .style("text-anchor", "middle")
+        .style("font-size", "10px")
+        .style("font-weight", "bold")
+        .text(d => `${d.data.name} ${d.data.value}%`);
+    
+    // 添加标题
+    svg.append("text")
+        .attr("text-anchor", "middle")
+        .attr("dy", "0.35em")
+        .style("font-size", "14px")
+        .style("font-weight", "bold")
+        .text("养殖成本结构分析");
+    </script>
+</body>
+</html>

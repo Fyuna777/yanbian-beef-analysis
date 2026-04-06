@@ -13,6 +13,13 @@ from plotly.subplots import make_subplots
 import json
 from datetime import datetime, timedelta
 import plotly.io as pio
+# 新增的AI助手导入
+from ai_assistant import AIAssistant, get_app_context
+from dotenv import load_dotenv
+try:
+    load_dotenv()  # 加载环境变量
+except:
+    pass  # 如果.env文件有问题，就跳过
 
 # 导入自定义计算模块
 from utils.calculations import (
@@ -100,13 +107,10 @@ st.markdown("""
 
 # ==================== 初始化会话状态 ====================
 # 在侧边栏渲染前，确保所有可能由侧边栏控件控制的session_state变量都有初始值
-# 这能极大避免前端渲染时的状态不一致错误
 if 'use_advanced_model' not in st.session_state:
     st.session_state.use_advanced_model = False
-# 可以继续初始化其他可能由控件影响的状态，例如：
-# if 'some_slider_value' not in st.session_state:
-#     st.session_state.some_slider_value = 100
-
+if 'zhipu_api_key' not in st.session_state:
+    st.session_state.zhipu_api_key = ""
 
 # ==================== 侧边栏参数控制 ====================
 with st.sidebar:
@@ -179,7 +183,35 @@ with st.sidebar:
     
     st.info("💡 **提示**：拖动滑块实时查看分析结果变化")
     
+    # ==================== AI 智能助手 ====================
+    st.markdown("---")
+    st.subheader("🤖 AI 分析助手")
+    
+    # 输入API Key（首次使用时需要）
+    api_key_input = st.text_input(
+        "智谱API Key（首次使用需输入）", 
+        type="password",
+        help="请输入您的智谱AI API Key。获取地址：https://open.bigmodel.cn/dev/api"
+    )
+    
+    # 存储API Key到session_state
+    if api_key_input:
+        st.session_state.zhipu_api_key = api_key_input
+    elif 'zhipu_api_key' not in st.session_state:
+        st.session_state.zhipu_api_key = ""
+    
+    # 用户问题输入框
+    user_question = st.text_area(
+        "请输入您的问题：",
+        placeholder="例如：当前设置的参数有哪些风险？如果牛肉降价10%会怎样？如何提高投资回报率？",
+        height=100
+    )
+    
+    # 提问按钮
+    ask_button = st.button("🚀 提问", use_container_width=True, key="ai_ask_button")
+    
     # GitHub链接
+    st.markdown("---")
     st.markdown("""
     ### 🔗 项目链接
     - [GitHub仓库](https://github.com/Fyuna777/yanbian-beef-analysis)
@@ -245,6 +277,48 @@ with col4:
         <div class="kpi-label">保本产销率</div>
     </div>
     """, unsafe_allow_html=True)
+
+# ==================== AI 回答处理 ====================
+# 检查AI提问按钮是否被点击
+if 'ai_ask_button' in st.session_state and st.session_state.ai_ask_button and user_question:
+    with st.spinner("🤔 AI正在思考..."):
+        # 收集当前应用参数
+        current_params = {
+            "investment_unit": investment_unit,
+            "return_rate": guaranteed_return_rate,
+            "sales_price": sales_price,
+            "sales_achievement": sales_achievement,
+            "mortality_rate": mortality_rate,
+            "marketing_budget": marketing_budget,
+            "use_advanced_model": use_advanced_model
+        }
+        
+        # 获取上下文描述
+        context = get_app_context(current_params)
+        
+        # 创建AI助手实例
+        assistant = AIAssistant(st.session_state.zhipu_api_key)
+        
+        # 获取AI回答
+        ai_response = assistant.ask_question(user_question, context)
+    
+    # 显示AI回答
+    st.markdown("---")
+    st.subheader("💡 AI 分析建议")
+    
+    # 美化显示区域
+    with st.container():
+        st.markdown(f"""
+        <div style="
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            padding: 20px;
+            border-radius: 10px;
+            border-left: 5px solid #3B82F6;
+            margin: 10px 0;
+        ">
+        {ai_response}
+        </div>
+        """, unsafe_allow_html=True)
 
 st.markdown("---")
 
@@ -331,6 +405,28 @@ with tab1:
         - 当前销量达成率 **{sales_achievement}%** 下，预期净利润 **¥{net_profit:,.0f}**
         - 投资回报率 **{roi:.1f}%**，高于行业平均水平
         """)
+
+        st.markdown("---")
+        st.subheader("💎 前端技术展示：原生D3.js实现")
+    
+        # 读取并嵌入D3.js图表
+        try:
+            with open("components/sunburst.html", "r", encoding="utf-8") as f:
+                d3_html = f.read()
+            st.components.v1.html(d3_html, height=450, scrolling=False)
+            
+            st.caption("""
+            **技术说明**：此成本结构旭日图使用原生D3.js（v7）实现，展示了以下前端技术能力：
+            - 📊 底层SVG绘图与数据绑定
+            - 🎨 数据驱动的可视化（Data-Driven Documents）
+            - 🖱️ 交互式鼠标事件处理与动态提示框
+            - 🎯 响应式布局与自适应设计
+            - 📈 复杂的分区布局（Partition Layout）算法应用
+            """)
+        except FileNotFoundError:
+            st.warning("⚠️ D3.js图表文件未找到，请确保 components/sunburst.html 存在。")
+        except Exception as e:
+            st.error(f"❌ 加载D3.js图表时出错: {e}")
 
 # ==================== Tab 2: 营销渠道归因 ====================
 with tab2:
